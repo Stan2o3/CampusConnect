@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Connect Togo - Plateforme Collaborative</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased min-h-screen">
+
+<!-- ============================================================
+     BARRE DE NAVIGATION — contenu adapté par rôle via JS
+     ============================================================ -->
+<nav class="bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm glass-panel">
+    <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md transform hover:scale-105 transition-transform">C</div>
+        <span class="text-xl font-bold text-slate-900 dark:text-white">CampusConnect<span class="text-emerald-600 dark:text-emerald-400">.tg</span></span>
+        <!-- Badge rôle connecté -->
+        <span id="navRoleBadge" class="hidden text-xs font-bold px-2.5 py-1 rounded-full ml-1"></span>
+    </div>
+
+    <!-- Onglets de navigation : injectés dynamiquement par JS selon le rôle -->
+    <div id="navTabs" class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex space-x-1 border border-slate-200 dark:border-slate-700"></div>
+
+    <div class="flex items-center space-x-2 border-l pl-4 border-slate-200 dark:border-slate-800">
+        <button id="btnThemeToggle" class="p-2 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-slate-800 transition-all cursor-pointer mr-1" title="Changer de thème">
+            <span class="dark:hidden">🌙</span>
+            <span class="hidden dark:inline">☀️</span>
+        </button>
+        <button id="btnMonProfil" class="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center space-x-1 cursor-pointer">
+            <span id="navUserName">—</span>
+        </button>
+        <button id="btnDeconnexion" class="text-xs text-slate-400 hover:text-red-500 dark:hover:text-red-400 border border-slate-200 dark:border-slate-700 hover:border-red-300 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ml-1">
+            Déconnexion
+        </button>
+    </div>
+</nav>
+
+<!-- ============================================================
+     SECTIONS — ÉTUDIANT
+     ============================================================ -->
+
+<!-- Dashboard étudiant -->
+<main id="sectionDashboard" class="max-w-6xl mx-auto px-6 py-10 hidden component-fade">
+    <div class="mb-10">
+        <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Votre Tableau de Bord</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2">Suivez vos compétences, vos projets actifs et l'historique de vos activités.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between hover-card">
+            <div><span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Projets rejoints</span>
+            <h3 id="dashCountProjets" class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">0</h3></div>
+            <span class="text-xs text-slate-400 mt-4">Sur la plateforme</span>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between hover-card">
+            <div><span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Heures Collaborées</span>
+            <h3 id="dashHours" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">0 h</h3></div>
+            <span class="text-xs text-slate-400 mt-4">Basé sur vos équipes</span>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between hover-card">
+            <div><span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Écoles Associées</span>
+            <h3 id="dashSchools" class="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-2">3</h3></div>
+            <span class="text-xs text-slate-400 mt-4">IPNET • ESGIS • UL</span>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between hover-card">
+            <div><span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Score Global IA</span>
+            <h3 id="dashScoreIA" class="text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-2">82/100</h3></div>
+            <span class="text-xs text-slate-400 mt-4">Niveau : Licence 1</span>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Vos Équipes Actives</h2>
+            <div id="dashListeProjets" class="space-y-4"></div>
+        </div>
+        <div class="space-y-6">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Métriques de Compétences</h2>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs space-y-5">
+                <div>
+                    <div class="flex justify-between text-sm mb-2"><span class="font-semibold text-slate-700 dark:text-slate-300">Algorithmique & Python</span><span id="dashAlgoProgress" class="text-slate-500 font-bold">Lvl 2 (45%)</span></div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full"><div id="dashAlgoProgressBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width:45%"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-2"><span class="font-semibold text-slate-700 dark:text-slate-300">Travail en Équipe</span><span id="dashEquipeProgress" class="text-slate-500 font-bold">Lvl 3 (70%)</span></div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full"><div id="dashEquipeProgressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width:70%"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-2"><span class="font-semibold text-slate-700 dark:text-slate-300">Génie Logiciel</span><span id="dashGLProgress" class="text-slate-500 font-bold">Lvl 1 (15%)</span></div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full"><div id="dashGLProgressBar" class="bg-purple-500 h-2 rounded-full transition-all duration-500" style="width:15%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Espace Projets étudiant -->
+<main id="sectionEtudiant" class="max-w-6xl mx-auto px-6 py-10 hidden component-fade">
+    <div class="mb-10">
+        <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Développez vos compétences en équipe</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2">Rejoignez des challenges et projets pratiques entre étudiants d'écoles différentes.</p>
+    </div>
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-700 dark:to-teal-900 text-white rounded-2xl p-6 mb-8 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl animate-pulse">🤖</div>
+            <div>
+                <h4 class="font-bold text-base">Suggestions de l'IA (SolveTeck Engine)</h4>
+                <p class="text-sm text-emerald-100" id="iaSuggestion">Analysez votre profil pour des recommandations personnalisées.</p>
+            </div>
+        </div>
+        <button id="btnGenererCV" class="bg-white text-emerald-700 text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-emerald-50 transition-all cursor-pointer shadow-md shrink-0">Générer mon CV Portfolio via IA</button>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row gap-4">
+                <input id="inputRechercheProjet" type="text" placeholder="Rechercher un projet..." class="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <select id="selectInstitution" class="px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-150 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="">Toutes les institutions</option>
+                    <option value="ipnet">IPNET Institute of Technology</option>
+                    <option value="esgis">ESGIS Lomé</option>
+                    <option value="ul">Université de Lomé (UL)</option>
+                    <option value="uk">Université de Kara (UK)</option>
+                    <option value="autre">Autre (ajouter...)</option>
+                </select>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white pt-2">Challenges & Projets actifs</h2>
+            <div id="conteneurProjetsEtudiants" class="space-y-6"></div>
+        </div>
+        <!-- Fil d'actu -->
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Fil d'actualités</h2>
+                <button id="btnViderActus" class="text-xs text-slate-400 hover:text-rose-500 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg transition-all cursor-pointer">Vider</button>
+            </div>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs max-h-96 overflow-y-auto">
+                <div id="filActualites" class="space-y-3 text-xs">
+                    <div class="text-center py-6 text-slate-400 italic">Aucune activité récente.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Profil étudiant (drawer) -->
+<div id="sectionProfil" class="fixed inset-0 bg-slate-950/50 backdrop-blur-xs z-50 hidden">
+    <div class="absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 overflow-y-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Mon Profil</h2>
+            <button id="btnFermerProfil" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+        <div class="flex flex-col items-center text-center mb-6">
+            <div id="profilAvatar" class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-3">R</div>
+            <h3 id="profilNom" class="font-bold text-slate-900 dark:text-white text-lg">—</h3>
+            <p id="profilEcole" class="text-sm text-slate-500 dark:text-slate-400">—</p>
+            <span id="profilRoleBadge" class="mt-2 text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">Étudiant</span>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between text-sm mb-2"><span class="font-semibold text-slate-700 dark:text-slate-300">Algorithmique & Python</span><span id="profilAlgoProgress" class="text-slate-500 font-bold">Lvl 2</span></div>
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full"><div id="profilAlgoProgressBar" class="bg-emerald-500 h-1.5 rounded-full" style="width:45%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between text-sm mb-2"><span class="font-semibold text-slate-700 dark:text-slate-300">Travail en Équipe</span><span id="profilEquipeProgress" class="text-slate-500 font-bold">Lvl 3</span></div>
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full"><div id="profilEquipeProgressBar" class="bg-blue-500 h-1.5 rounded-full" style="width:70%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between text-sm mb-2"><span class="font-semibold text-slate-700 dark:text-slate-300">Génie Logiciel</span><span id="profilGLProgress" class="text-slate-500 font-bold">Lvl 1</span></div>
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full"><div id="profilGLProgressBar" class="bg-purple-500 h-1.5 rounded-full" style="width:15%"></div></div>
+            </div>
+        </div>
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 mt-4">
+            <button id="btnAnalyseIA" class="w-full py-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md">🤖 Lancer un audit de mes compétences</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SECTIONS — FORMATEUR / RECRUTEUR
+     ============================================================ -->
+<main id="sectionRecruteur" class="max-w-6xl mx-auto px-6 py-10 hidden component-fade">
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Espace Formateur</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2">Gérez vos projets, évaluez les équipes et suivez l'avancement des livrables.</p>
+        </div>
+        <button id="btnOuvrirModal" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-md cursor-pointer transition-all shrink-0">+ Proposer un projet</button>
+    </div>
+
+    <!-- Stats formateur -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-2xl">📁</div>
+            <div><p class="text-xs text-slate-400 font-semibold uppercase">Projets publiés</p><p id="recruteurNbProjets" class="text-2xl font-extrabold text-slate-900 dark:text-white">0</p></div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-2xl">👥</div>
+            <div><p class="text-xs text-slate-400 font-semibold uppercase">Étudiants engagés</p><p id="recruteurNbEtudiants" class="text-2xl font-extrabold text-slate-900 dark:text-white">0</p></div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-4">
+            <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center text-2xl">📊</div>
+            <div><p class="text-xs text-slate-400 font-semibold uppercase">Avancement moyen</p><p id="recruteurAvgProgress" class="text-2xl font-extrabold text-slate-900 dark:text-white">0%</p></div>
+        </div>
+    </div>
+
+    <!-- Filtres formateur -->
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs mb-6 flex flex-col sm:flex-row gap-3">
+        <input id="inputRechercheRecruteur" type="text" placeholder="Rechercher un projet..." class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select id="filtreStatutRecruteur" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Tous les statuts</option>
+            <option value="En cours">En cours</option>
+            <option value="Recrutement ouvert">Recrutement ouvert</option>
+            <option value="Terminé">Terminé</option>
+        </select>
+    </div>
+
+    <div id="listeOffres" class="space-y-4"></div>
+</main>
+
+<!-- ============================================================
+     SECTIONS — ADMINISTRATEUR
+     ============================================================ -->
+<main id="sectionAdmin" class="max-w-6xl mx-auto px-6 py-10 hidden component-fade">
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl">⚙️</div>
+            <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Panneau d'Administration</h1>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Vue globale de la plateforme · Gestion des utilisateurs, projets et statistiques.</p>
+    </div>
+
+    <!-- KPIs admin -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-white shadow-md">
+            <p class="text-xs font-bold uppercase opacity-80">Utilisateurs</p>
+            <p id="adminNbUsers" class="text-3xl font-extrabold mt-1">5</p>
+            <p class="text-xs opacity-70 mt-1">Sur la plateforme</p>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-5 rounded-2xl text-white shadow-md">
+            <p class="text-xs font-bold uppercase opacity-80">Projets actifs</p>
+            <p id="adminNbProjets" class="text-3xl font-extrabold mt-1">0</p>
+            <p class="text-xs opacity-70 mt-1">En cours + ouverts</p>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-pink-600 p-5 rounded-2xl text-white shadow-md">
+            <p class="text-xs font-bold uppercase opacity-80">Inscriptions</p>
+            <p id="adminNbInscriptions" class="text-3xl font-extrabold mt-1">0</p>
+            <p class="text-xs opacity-70 mt-1">Équipes formées</p>
+        </div>
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-white shadow-md">
+            <p class="text-xs font-bold uppercase opacity-80">Avancement moyen</p>
+            <p id="adminAvgProgress" class="text-3xl font-extrabold mt-1">0%</p>
+            <p class="text-xs opacity-70 mt-1">Tous projets</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Gestion utilisateurs -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="font-bold text-slate-900 dark:text-white">👤 Gestion des utilisateurs</h2>
+                <span id="adminUserCount" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full font-semibold">0</span>
+            </div>
+            <div class="p-4">
+                <input id="inputRechercheAdmin" type="text" placeholder="Rechercher un utilisateur..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 mb-4">
+                <div id="adminListeUsers" class="space-y-2 max-h-80 overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <!-- Gestion projets -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="font-bold text-slate-900 dark:text-white">📁 Tous les projets</h2>
+                <button id="btnAdminNouveauProjet" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-all">+ Nouveau</button>
+            </div>
+            <div class="p-4 space-y-3 max-h-96 overflow-y-auto" id="adminListeProjets"></div>
+        </div>
+
+        <!-- Journal d'activité -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="font-bold text-slate-900 dark:text-white">📋 Journal d'activité</h2>
+                <button id="btnViderJournal" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg cursor-pointer transition-all">Vider</button>
+            </div>
+            <div class="p-4 max-h-64 overflow-y-auto">
+                <div id="adminJournal" class="space-y-2 text-xs">
+                    <div class="text-center py-4 text-slate-400 italic">Aucune activité récente.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réinitialisation -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-xs overflow-hidden">
+            <div class="px-5 py-4 border-b border-red-100 dark:border-red-900/30">
+                <h2 class="font-bold text-red-700 dark:text-red-400">⚠️ Zone de danger</h2>
+            </div>
+            <div class="p-5 space-y-3">
+                <p class="text-xs text-slate-500 dark:text-slate-400">Ces actions sont irréversibles. Agissez avec précaution.</p>
+                <button id="btnResetProjets" class="w-full py-2.5 text-sm font-semibold text-red-600 border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all cursor-pointer">🗑️ Réinitialiser tous les projets</button>
+                <button id="btnResetInscriptions" class="w-full py-2.5 text-sm font-semibold text-orange-600 border border-orange-200 dark:border-orange-900 hover:bg-orange-50 dark:hover:bg-orange-950/30 rounded-xl transition-all cursor-pointer">↩️ Réinitialiser toutes les inscriptions</button>
+                <button id="btnExportDonnees" class="w-full py-2.5 text-sm font-semibold text-blue-600 border border-blue-200 dark:border-blue-900 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-all cursor-pointer">📤 Exporter les données (JSON)</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- ============================================================
+     MODALES PARTAGÉES
+     ============================================================ -->
+
+<!-- Modale formulaire projet -->
+<div id="modalFormulaire" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full p-6 mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Proposer un projet</h3>
+            <button id="btnFermerModal" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+        <form id="formProjet">
+            <div class="space-y-4 mb-6">
+                <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Nom du Projet</label>
+                <input id="jobTitle" type="text" required placeholder="ex: Dashboard Énergétique" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Problématique</label>
+                <textarea id="jobDesc" required rows="3" placeholder="Décrivez le besoin réel..." class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea></div>
+                <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Technologies</label>
+                <input id="jobTags" type="text" placeholder="ex: UML, Python, Docker" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="btnAnnulerModal" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-slate-700 cursor-pointer">Annuler</button>
+                <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md cursor-pointer">Lancer le défi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale Audit IA -->
+<div id="modaleEvaluation" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-6 shadow-2xl mx-4 flex flex-col gap-4 border border-slate-200 dark:border-slate-800">
+        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div><h3 id="evalTitle" class="text-lg font-bold text-slate-900 dark:text-white">Audit de compétences IA</h3>
+            <p id="evalProjectName" class="text-xs text-slate-400 mt-0.5">Analyse en cours...</p></div>
+            <button id="btnFermerEval" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+        <div class="space-y-4 my-2">
+            <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-4 text-xs text-emerald-900 dark:text-emerald-200 flex items-start space-x-2.5">
+                <span class="text-base mt-0.5">🤖</span>
+                <p><strong>Conseil SolveTeck :</strong> Pour passer au niveau supérieur en "Cloud Infrastructure", rejoignez l'équipe d'Architecture DevStack. Un profil polyvalent augmente vos chances de recrutement au Togo de 40% !</p>
+            </div>
+            <div class="border border-slate-100 dark:border-slate-800 rounded-xl p-4 space-y-3">
+                <div class="flex justify-between items-center text-xs border-b pb-2 border-slate-100 dark:border-slate-800">
+                    <span class="font-bold text-slate-700 dark:text-slate-300">Analyse de profil</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">Licence 1 (Débutant Prometteur)</span>
+                </div>
+                <div class="flex justify-between items-center text-xs text-slate-500"><span>Algorithmique & Python</span><span class="font-medium text-slate-700 dark:text-slate-300">Lvl 2 (Intermédiaire)</span></div>
+                <div class="flex justify-between items-center text-xs text-slate-500 border-b pb-2 border-slate-100 dark:border-slate-800"><span>Travail en Équipe</span><span class="font-medium text-slate-700 dark:text-slate-300">Lvl 3 (Avancé)</span></div>
+                <div class="flex justify-between items-center text-xs pt-1"><span class="font-bold text-slate-800 dark:text-slate-200">Score global IA</span><span class="font-extrabold text-slate-900 dark:text-white text-sm">82 / 100</span></div>
+            </div>
+        </div>
+        <div class="flex justify-end pt-2">
+            <button id="btnValiderProjet" class="bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-md">Fermer l'audit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modale CV Portfolio — overlay séparé du contenu pour éviter les conflits de z-index -->
+<div id="modalCVOverlay" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.7); z-index:9998;"></div>
+<div id="modalCV" style="display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:1rem;">
+    <!-- Boîte blanche du CV — fond toujours blanc pour la génération PDF -->
+    <div id="modalCVBox" style="background:#ffffff; border-radius:1rem; max-width:520px; width:100%; padding:1.5rem; box-shadow:0 25px 60px rgba(0,0,0,0.35); position:relative;">
+
+        <!-- En-tête avec croix -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+            <h3 style="font-size:1rem; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:0.5rem;">
+                <span>🤖</span> Générateur de CV Portfolio
+            </h3>
+            <!-- Croix en position absolute pour garantir qu'elle est toujours cliquable -->
+            <button id="btnFermerModalCV"
+                style="position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%; border:none; background:#f1f5f9; color:#475569; font-size:1.2rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10001; line-height:1;"
+                onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626';"
+                onmouseout="this.style.background='#f1f5f9';this.style.color='#475569';">
+                &times;
+            </button>
+        </div>
+
+        <!-- Zone de contenu (fond blanc fixe pour que html2pdf fonctionne) -->
+        <div style="background:#f8fafc; border-radius:0.75rem; border:1px solid #e2e8f0; padding:1.5rem; position:relative;">
+
+            <!-- État de chargement -->
+            <div id="cvLoadingState" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2.5rem 0; gap:1rem;">
+                <div style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center;">
+                    <div style="position:absolute; inset:0; border:4px solid rgba(5,150,105,0.15); border-radius:50%;"></div>
+                    <div style="position:absolute; inset:0; border:4px solid #059669; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+                    <span style="font-size:1.25rem;">🤖</span>
+                </div>
+                <div style="text-align:center;">
+                    <p style="font-weight:700; color:#0f172a; font-size:0.85rem; margin:0 0 0.35rem;">Compilation IA SolveTeck</p>
+                    <p id="cvLoadingText" style="color:#94a3b8; font-size:0.75rem; min-height:1.25rem; margin:0;">Lecture du profil...</p>
+                </div>
+            </div>
+
+            <!-- Contenu du CV (rendu après chargement) -->
+            <div id="cvContent" style="display:none;">
+                <!-- En-tête CV -->
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem; padding-bottom:0.75rem; border-bottom:2px solid #059669;">
+                    <h4 id="cvNom" style="font-size:1.1rem; font-weight:800; color:#0f172a; margin:0;">—</h4>
+                    <span id="cvEcole" style="font-size:0.75rem; font-weight:700; color:#059669;">—</span>
+                </div>
+
+                <!-- Compétences -->
+                <div style="margin-bottom:1rem;">
+                    <p style="font-size:0.7rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 0.5rem;">🎯 Compétences clés</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+                        <span style="background:#f0fdf4; color:#065f46; font-size:0.7rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:6px; border:1px solid #d1fae5;">Python</span>
+                        <span style="background:#059669; color:#ffffff; font-size:0.7rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:6px;">Algorithmique</span>
+                        <span style="background:#eff6ff; color:#1e40af; font-size:0.7rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:6px; border:1px solid #dbeafe;">Travail d'équipe</span>
+                    </div>
+                </div>
+
+                <!-- Projets -->
+                <div>
+                    <p style="font-size:0.7rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 0.5rem;">🚀 Projets réalisés</p>
+                    <ul id="listeProjetsCV" style="margin:0; padding-left:1.2rem; font-size:0.78rem; color:#334155; line-height:1.6;"></ul>
+                </div>
+
+                <!-- Séparateur -->
+                <div style="border-top:1px solid #e2e8f0; margin-top:1rem; padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.65rem; color:#94a3b8;">Généré par CampusConnect.tg • SolveTeck Engine IA</span>
+                    <span style="font-size:0.65rem; color:#059669; font-weight:700;">2025</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bouton PDF — EN DEHORS de cvContent pour ne pas l'inclure dans le PDF -->
+        <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+            <button id="btnTelechargerPDF"
+                style="background:#059669; color:#ffffff; font-size:0.82rem; font-weight:700; padding:0.6rem 1.25rem; border-radius:0.65rem; border:none; cursor:pointer; transition:background 0.2s; box-shadow:0 2px 8px rgba(5,150,105,0.35);"
+                onmouseover="this.style.background='#047857';"
+                onmouseout="this.style.background='#059669';">
+                Télécharger en PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- Chatbot (visible pour étudiant et formateur) -->
+<button id="btnChatbotToggle" class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-105 cursor-pointer z-50 hidden">
+    <span class="text-2xl">🤖</span>
+</button>
+<div id="chatbotContainer" class="fixed bottom-24 right-6 w-96 h-[460px] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex-col hidden z-50 text-white">
+    <div class="p-4 bg-emerald-800 rounded-t-2xl flex justify-between items-center border-b border-emerald-700">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl">🤖</span>
+            <div><h4 class="font-bold text-sm">Guardian Assistant</h4><p class="text-[10px] text-emerald-300">En ligne • Assistant IA CampusConnect</p></div>
+        </div>
+        <button id="btnFermerChatbot" class="text-emerald-200 hover:text-white text-xl font-bold cursor-pointer">&times;</button>
+    </div>
+    <div id="chatBoxMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs flex flex-col">
+        <div class="bg-white/10 p-2.5 rounded-lg rounded-tl-none max-w-[85%]">🤖 Salut ! Je suis l'IA de CampusConnect. Comment puis-je vous aider ?</div>
+    </div>
+    <div class="p-3 bg-slate-950 rounded-b-2xl border-t border-slate-800 flex items-center space-x-2">
+        <input id="chatInput" type="text" placeholder="Pose ta question..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+        <button id="btnEnvoyerChat" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold cursor-pointer">Envoyer</button>
+    </div>
+</div>
+
+<!-- Pas de CDN externe — génération PDF via impression native du navigateur -->
+<script src="script.js"></script>
+</body>
+</html>
