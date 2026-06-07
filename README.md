@@ -1,5 +1,13 @@
 # CampusConnect.tg 🎓
 
+ Équipe 
+IPNET Institute of Technology — Lomé, Togo
+#Nom completRôle1
+PATAYODI Stanley Esso-sosso
+AYISSOU Mawunyo Ben-Junior
+BITHO Essohanam Rosemonde
+ADJANAYO Ayomidé Marcellin
+
 > Plateforme web collaborative destinée aux étudiants, formateurs et recruteurs du Togo.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-emerald) ![Statut](https://img.shields.io/badge/statut-en%20développement-orange) ![Année](https://img.shields.io/badge/année-2025-blue)
